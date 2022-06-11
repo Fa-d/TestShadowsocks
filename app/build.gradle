@@ -32,7 +32,8 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation files('/Users/kolpolok/Desktop/tun2socks.aar')
+    //implementation files('libs')
     //implementation 'io.sentry:sentry-android:2.0.2'
     implementation 'org.apache.commons:commons-collections4:4.4'
+    implementation files('/home/faddy/Downloads/android/android/app/src/main/libs/tun2socks.aar')
 }
