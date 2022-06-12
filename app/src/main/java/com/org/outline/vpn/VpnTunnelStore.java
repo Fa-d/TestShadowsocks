@@ -17,7 +17,7 @@ package com.org.outline.vpn;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.org.outline.OutlinePlugin;
+import com.org.outline.android.OutlinePlugin;
 
 import org.json.JSONException;
 import org.json.JSONObject;

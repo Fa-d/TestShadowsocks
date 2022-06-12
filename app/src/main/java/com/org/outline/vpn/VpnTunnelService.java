@@ -31,7 +31,7 @@ import android.net.VpnService;
 import android.os.Build;
 import android.os.IBinder;
 
-import com.org.outline.OutlinePlugin;
+import com.org.outline.android.OutlinePlugin;
 
 import org.json.JSONException;
 import org.json.JSONObject;

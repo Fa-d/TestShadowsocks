@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.net.Uri;
 import android.net.VpnService;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -14,33 +13,24 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.contract.ActivityResultContract;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.org.outline.CallbackContext;
-import com.org.outline.OutlinePlugin;
-import com.org.outline.PluginResult;
+import com.org.outline.android.OutlinePlugin;
 import com.org.outline.vpn.VpnServiceStarter;
 import com.org.outline.vpn.VpnTunnelService;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.outline.IVpnTunnelService;
-import org.outline.TunnelConfig;
 
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 public class MainActivity extends AppCompatActivity {
     private IVpnTunnelService vpnTunnelService;
     private String errorReportingApiKey = "";
-    private StartVpnRequest startVpnRequest;
     private VpnTunnelBroadcastReceiver vpnTunnelBroadcastReceiver =
             new VpnTunnelBroadcastReceiver();
 
@@ -63,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fun2() {
-        String action = "";
         JSONObject obj = new JSONObject();
         try {
             obj.put("host", "212.8.243.30");
@@ -85,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
     private boolean isTunnelActive(final String tunnelId) {
         try {
             return vpnTunnelService.isTunnelActive(tunnelId);
@@ -109,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 if (prepareVpnIntent != null) {
                     startActivityForResult(prepareVpnIntent, 788712);
                     Toast.makeText(MainActivity.this, "Into prepare intent", Toast.LENGTH_SHORT).show();
-                }else{
+                } else {
                     onActivityResult(788712, RESULT_OK, null);
                     Toast.makeText(MainActivity.this, "prepare intent null", Toast.LENGTH_SHORT).show();
                 }
@@ -129,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.checkShadowsocks).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this," " + isTunnelActive("f"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, " " + isTunnelActive("f"), Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -167,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static class VpnTunnelBroadcastReceiver extends BroadcastReceiver {
-        private final Map<String, CallbackContext> tunnelStatusListeners = new ConcurrentHashMap<>();
+        private final Map<String, String> tunnelStatusListeners = new ConcurrentHashMap<>();
 
         public VpnTunnelBroadcastReceiver() {
         }
@@ -179,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Hello", "Tunnel status broadcast missing tunnel ID");
                 return;
             }
-            CallbackContext callback = tunnelStatusListeners.get(tunnelId);
+            String callback = tunnelStatusListeners.get(tunnelId);
             if (callback == null) {
                 Log.d("Hello", String.format(
                         Locale.ROOT, "Failed to retrieve status listener for tunnel ID %s", tunnelId));
@@ -187,21 +177,7 @@ public class MainActivity extends AppCompatActivity {
             }
             int status = intent.getIntExtra(OutlinePlugin.MessageData.PAYLOAD.value, OutlinePlugin.TunnelStatus.INVALID.value);
             Log.d("Hello", String.format(Locale.ROOT, "VPN connectivity changed: %s, %d", tunnelId, status));
-
-            PluginResult result = new PluginResult(PluginResult.Status.OK, status);
-            // Keep the tunnel status callback so it can be called multiple times.
-            result.setKeepCallback(true);
-            callback.sendPluginResult(result);
         }
     }
 
-    private static class StartVpnRequest {
-        public final JSONArray args;
-        public final CallbackContext callback;
-
-        public StartVpnRequest(JSONArray args, CallbackContext callback) {
-            this.args = args;
-            this.callback = callback;
-        }
-    }
 }

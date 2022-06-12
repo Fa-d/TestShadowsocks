@@ -12,36 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.org.outline;
-
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.net.VpnService;
-import android.os.IBinder;
-
-import com.org.outline.vpn.VpnServiceStarter;
-import com.org.outline.vpn.VpnTunnelService;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.outline.IVpnTunnelService;
-import org.outline.TunnelConfig;
+package com.org.outline.android;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class OutlinePlugin extends CordovaPlugin {
+public class OutlinePlugin {
     private static final Logger LOG = Logger.getLogger(OutlinePlugin.class.getName());
 
     // Actions supported by this plugin.
@@ -131,7 +108,7 @@ public class OutlinePlugin extends CordovaPlugin {
         }
     }
 
-    // Encapsulates parameters to start the VPN asynchronously after requesting user permission.
+  /*  // Encapsulates parameters to start the VPN asynchronously after requesting user permission.
     private static class StartVpnRequest {
         public final JSONArray args;
         public final CallbackContext callback;
@@ -379,5 +356,5 @@ public class OutlinePlugin extends CordovaPlugin {
         } else {
             callback.error(errorCode);
         }
-    }
+    }*/
 }

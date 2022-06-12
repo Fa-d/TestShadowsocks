@@ -19,7 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
-import com.org.outline.OutlinePlugin;
+import com.org.outline.android.OutlinePlugin;
 
 // Starts the VpnTunnelService on boot and after app updates. Receives broadcasts for
 // android.intent.action.BOOT_COMPLETED and android.intent.action.MY_PACKAGE_REPLACED.
