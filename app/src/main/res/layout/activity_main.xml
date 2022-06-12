@@ -18,6 +18,17 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
+        android:id="@+id/checkShadowsocks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Check Status"
+        app:layout_constraintBottom_toTopOf="@+id/stopShadowSocks"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/startShadowsocks" />
+
+    <Button
         android:id="@+id/stopShadowSocks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

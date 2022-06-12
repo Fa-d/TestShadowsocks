@@ -310,7 +310,7 @@ public class OutlinePlugin extends CordovaPlugin {
         LOG.info(String.format(Locale.ROOT, "Starting VPN tunnel %s", tunnelId));
         final TunnelConfig tunnelConfig;
         try {
-            tunnelConfig = VpnTunnelService.makeTunnelConfig(tunnelId, config);
+            tunnelConfig = VpnTunnelService.makeTunnelConfig(tunnelId);
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Failed to retrieve the tunnel proxy config.", e);
             return ErrorCode.ILLEGAL_SERVER_CONFIGURATION.value;

@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -34,6 +35,7 @@ import org.outline.TunnelConfig;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 public class MainActivity extends AppCompatActivity {
     private IVpnTunnelService vpnTunnelService;
@@ -45,28 +47,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
-        String action = "";
-        JSONObject obj = new JSONObject();
-        try {
-            obj.put("host", "212.8.243.30");
-            obj.put("port", 64772);
-            obj.put("password", "kjYT32");
-            obj.put("method", "aes-256-gcm");
-            JSONArray args = new JSONArray().put(obj);
-            CallbackContext callbackContext;
-            final String tunnelId = args.getString(0);
-            final JSONObject config = args.getJSONObject(1);
-            startVpnTunnel(tunnelId, config);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
 
-    @Override
-    public void startActivityForResult(Intent intent, int requestCode) {
-        Intent prepareVpnIntent = VpnService.prepare(getBaseContext());
-        super.startActivityForResult(prepareVpnIntent, 100);
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 788712 && resultCode == RESULT_OK) {
+            fun2();
+            Toast.makeText(this, "fun 2", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "hello", Toast.LENGTH_SHORT).show();
+
+        }
     }
 
     private Intent fun1() {
@@ -83,10 +72,28 @@ public class MainActivity extends AppCompatActivity {
             obj.put("method", "aes-256-gcm");
             JSONArray args = new JSONArray().put(obj);
             final String tunnelId = "23423423";
-            startVpnTunnel(tunnelId, obj);
+            Log.d("Hello", String.format(Locale.ROOT, "Starting VPN tunnel %s", "asdasd"));
+            final TunnelConfig tunnelConfig;
+            try {
+                tunnelConfig = VpnTunnelService.makeTunnelConfig(tunnelId /*config*/);
+                vpnTunnelService.startTunnel(tunnelConfig);
+                Log.d("Hello", String.format(Locale.ROOT, "Started VPN tunnel %s", "asdasd"));
+            } catch (Exception e) {
+                Log.d("Hello", "Failed to retrieve the tunnel proxy config.");
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    private boolean isTunnelActive(final String tunnelId) {
+        try {
+            return vpnTunnelService.isTunnelActive(tunnelId);
+        } catch (Exception e) {
+            Log.d("hello",
+                    String.format(Locale.ROOT, "Failed to determine if tunnel is active: %s", tunnelId), e);
+        }
+        return false;
     }
 
     @Override
@@ -94,33 +101,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
-        this.registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
-
-            }
-        });
-
-
-        Log.d("Hello", "Preparing VPN.");
-        bindService(
-                new Intent(
-                        getApplicationContext(),
-                        VpnTunnelService.class
-                ),
-                vpnServiceConnection,
-                Context.BIND_AUTO_CREATE
-        );
+        pluginInitialize();
 
         findViewById(R.id.startShadowsocks).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pluginInitialize();
-                while (fun1() == null) {
+                Intent prepareVpnIntent = VpnService.prepare(getBaseContext());
+                if (prepareVpnIntent != null) {
+                    startActivityForResult(prepareVpnIntent, 788712);
                 }
-                fun2();
+
             }
         });
         findViewById(R.id.stopShadowSocks).setOnClickListener(new View.OnClickListener() {
@@ -133,19 +123,13 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-    }
+        findViewById(R.id.checkShadowsocks).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(MainActivity.this," " + isTunnelActive("23423423"), Toast.LENGTH_SHORT).show();
 
-    private int startVpnTunnel(final String tunnelId, final JSONObject config) throws Exception {
-        Log.d("Hello", String.format(Locale.ROOT, "Starting VPN tunnel %s", "asdasd"));
-        final TunnelConfig tunnelConfig;
-        try {
-            tunnelConfig = VpnTunnelService.makeTunnelConfig(tunnelId, config);
-        } catch (Exception e) {
-            Log.d("Hello", "Failed to retrieve the tunnel proxy config.");
-            return OutlinePlugin.ErrorCode.ILLEGAL_SERVER_CONFIGURATION.value;
-        }
-        vpnTunnelService.startTunnel(tunnelConfig);
-        return 0;
+            }
+        });
     }
 
     private final ServiceConnection vpnServiceConnection = new ServiceConnection() {

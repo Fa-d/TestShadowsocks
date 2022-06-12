@@ -158,22 +158,22 @@ public class VpnTunnelService extends VpnService {
      * @throws IllegalArgumentException if `tunnelId` or `config` are null.
      * @throws JSONException            if parsing `config` fails.
      */
-    public static TunnelConfig makeTunnelConfig(final String tunnelId, final JSONObject config)
+    public static TunnelConfig makeTunnelConfig(final String tunnelId/*, final JSONObject config*/)
             throws Exception {
         final TunnelConfig tunnelConfig = new TunnelConfig();
         tunnelConfig.id = tunnelId;
         tunnelConfig.proxy = new ShadowsocksConfig();
-        tunnelConfig.proxy.host = config.getString("host");
+     /*    tunnelConfig.proxy.host = config.getString("host");
         tunnelConfig.proxy.port = config.getInt("port");
         tunnelConfig.proxy.password = config.getString("password");
-        tunnelConfig.proxy.method = config.getString("method");
-/*        tunnelConfig.proxy.host = "212.8.243.30";
+        tunnelConfig.proxy.method = config.getString("method");*/
+       tunnelConfig.proxy.host = "212.8.243.30";
         tunnelConfig.proxy.port = 64772;
         tunnelConfig.proxy.password = "kjYT32@";
-        tunnelConfig.proxy.method = "aes-256-gcm";*/
+        tunnelConfig.proxy.method = "aes-256-gcm";
         try {
             // `name` is an optional property; don't throw if it fails to parse.
-            tunnelConfig.name = config.getString("name") ;
+            tunnelConfig.name = "New Name" ;
             //tunnelConfig.name = "Random Name";
         } catch (Exception e) {
             LOG.fine("Tunnel config missing name");
@@ -415,7 +415,7 @@ public class VpnTunnelService extends VpnService {
         try {
             final String tunnelId = tunnel.getString(TUNNEL_ID_KEY);
             final JSONObject jsonConfig = tunnel.getJSONObject(TUNNEL_CONFIG_KEY);
-            final TunnelConfig config = makeTunnelConfig(tunnelId, jsonConfig);
+            final TunnelConfig config = makeTunnelConfig(tunnelId);
             // Start the service in the foreground as per Android 8+ background service execution limits.
             // Requires android.permission.FOREGROUND_SERVICE since Android P.
             startForegroundWithNotification(config);
