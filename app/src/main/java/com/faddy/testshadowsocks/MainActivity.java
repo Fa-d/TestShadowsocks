@@ -73,12 +73,11 @@ public class MainActivity extends AppCompatActivity {
             JSONArray args = new JSONArray().put(obj);
             final String tunnelId = "23423423";
             Log.d("Hello", String.format(Locale.ROOT, "Starting VPN tunnel %s", "asdasd"));
-            final TunnelConfig tunnelConfig;
             try {
-                tunnelConfig = VpnTunnelService.makeTunnelConfig(tunnelId /*config*/);
-                vpnTunnelService.startTunnel(tunnelConfig);
+                vpnTunnelService.startTunnel(VpnTunnelService.makeTunnelConfig(tunnelId));
                 Log.d("Hello", String.format(Locale.ROOT, "Started VPN tunnel %s", "asdasd"));
             } catch (Exception e) {
+                e.printStackTrace();
                 Log.d("Hello", "Failed to retrieve the tunnel proxy config.");
             }
 
@@ -101,14 +100,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        pluginInitialize();
 
         findViewById(R.id.startShadowsocks).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent prepareVpnIntent = VpnService.prepare(getBaseContext());
+                pluginInitialize();
+                Intent prepareVpnIntent = VpnService.prepare(getApplicationContext());
                 if (prepareVpnIntent != null) {
                     startActivityForResult(prepareVpnIntent, 788712);
+                    Toast.makeText(MainActivity.this, "Into prepare intent", Toast.LENGTH_SHORT).show();
+                }else{
+                    onActivityResult(788712, RESULT_OK, null);
+                    Toast.makeText(MainActivity.this, "prepare intent null", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -126,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.checkShadowsocks).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this," " + isTunnelActive("23423423"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this," " + isTunnelActive("f"), Toast.LENGTH_SHORT).show();
 
             }
         });

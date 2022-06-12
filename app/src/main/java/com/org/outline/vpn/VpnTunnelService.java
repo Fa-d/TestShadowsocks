@@ -161,21 +161,22 @@ public class VpnTunnelService extends VpnService {
     public static TunnelConfig makeTunnelConfig(final String tunnelId/*, final JSONObject config*/)
             throws Exception {
         final TunnelConfig tunnelConfig = new TunnelConfig();
-        tunnelConfig.id = tunnelId;
-        tunnelConfig.proxy = new ShadowsocksConfig();
-     /*    tunnelConfig.proxy.host = config.getString("host");
-        tunnelConfig.proxy.port = config.getInt("port");
-        tunnelConfig.proxy.password = config.getString("password");
-        tunnelConfig.proxy.method = config.getString("method");*/
-       tunnelConfig.proxy.host = "212.8.243.30";
-        tunnelConfig.proxy.port = 64772;
-        tunnelConfig.proxy.password = "kjYT32@";
-        tunnelConfig.proxy.method = "aes-256-gcm";
         try {
+            tunnelConfig.id = tunnelId;
+            tunnelConfig.proxy = new ShadowsocksConfig();
+            /*tunnelConfig.proxy.host = config.getString("host");
+            tunnelConfig.proxy.port = config.getInt("port");
+            tunnelConfig.proxy.password = config.getString("password");
+            tunnelConfig.proxy.method = config.getString("method");*/
+            tunnelConfig.proxy.host = "212.8.243.30";
+            tunnelConfig.proxy.port = 64772;
+            tunnelConfig.proxy.password = "kjYT32@";
+            tunnelConfig.proxy.method = "aes-256-gcm";
             // `name` is an optional property; don't throw if it fails to parse.
-            tunnelConfig.name = "New Name" ;
+            tunnelConfig.name = "New Name";
             //tunnelConfig.name = "Random Name";
         } catch (Exception e) {
+            e.printStackTrace();
             LOG.fine("Tunnel config missing name");
         }
         return tunnelConfig;
@@ -439,7 +440,7 @@ public class VpnTunnelService extends VpnService {
             tunnelConfig.proxy.port = 64772;
             tunnelConfig.proxy.password = "kjYT32@";
             tunnelConfig.proxy.method = "aes-256-gcm";*/
-           // tunnel.put(TUNNEL_ID_KEY, config.id).put(TUNNEL_CONFIG_KEY, proxyConfig);
+            // tunnel.put(TUNNEL_ID_KEY, config.id).put(TUNNEL_CONFIG_KEY, proxyConfig);
             tunnelStore.save(tunnel);
         } catch (JSONException e) {
             LOG.log(Level.SEVERE, "Failed to store JSON tunnel data", e);
