@@ -30,21 +30,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MainActivity extends AppCompatActivity {
     private IVpnTunnelService vpnTunnelService;
-    private String errorReportingApiKey = "";
-    private VpnTunnelBroadcastReceiver vpnTunnelBroadcastReceiver =
+    private final VpnTunnelBroadcastReceiver vpnTunnelBroadcastReceiver =
             new VpnTunnelBroadcastReceiver();
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        //super.onActivityResult(requestCode, resultCode, data);
-
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 788712 && resultCode == RESULT_OK) {
             fun2();
             Toast.makeText(this, "fun 2", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "hello", Toast.LENGTH_SHORT).show();
-
         }
     }
 
@@ -69,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
                 Log.d("Hello", "Failed to retrieve the tunnel proxy config.");
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -89,8 +84,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
         findViewById(R.id.startShadowsocks).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -140,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
             Intent rebind = new Intent(context, VpnTunnelService.class);
             rebind.putExtra(VpnServiceStarter.AUTOSTART_EXTRA, true);
             // Send the error reporting API key so the potential crash is reported.
+            String errorReportingApiKey = "";
             rebind.putExtra(OutlinePlugin.MessageData.ERROR_REPORTING_API_KEY.value, errorReportingApiKey);
             context.bindService(rebind, vpnServiceConnection, Context.BIND_AUTO_CREATE);
         }
