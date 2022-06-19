@@ -16,13 +16,13 @@
        specific language governing permissions and limitations
        under the License.
 */
-package com.org.outline.android;
+package com.org.outline.vpn;
 
 import android.util.Log;
 
 /**
  * Log to Android logging system.
- *
+ * <p>
  * Log message can be a string or a printf formatted string with arguments.
  * See http://developer.android.com/reference/java/util/Formatter.html
  */

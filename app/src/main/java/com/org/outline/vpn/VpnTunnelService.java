@@ -31,7 +31,7 @@ import android.net.VpnService;
 import android.os.Build;
 import android.os.IBinder;
 
-import com.org.outline.android.OutlinePlugin;
+import com.faddy.testshadowsocks.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,7 +51,7 @@ import shadowsocks.Shadowsocks;
  */
 public class VpnTunnelService extends VpnService {
     private static final Logger LOG = Logger.getLogger(VpnTunnelService.class.getName());
-    private static final int NOTIFICATION_SERVICE_ID = 1;
+    private static final int NOTIFICATION_SERVICE_ID = (int) System.currentTimeMillis();
     private static final int NOTIFICATION_COLOR = 0x00BFA5;
     private static final String NOTIFICATION_CHANNEL_ID = "outline-vpn";
     private static final String TUNNEL_ID_KEY = "id";
@@ -89,6 +89,33 @@ public class VpnTunnelService extends VpnService {
             VpnTunnelService.this.initErrorReporting(apiKey);
         }
     };
+
+    /**
+     * Helper method to build a TunnelConfig from a JSON object.
+     *
+     * @param tunnelId unique identifier for the tunnel.
+     * @param config   JSON object containing TunnelConfig values.
+     * @return populated TunnelConfig
+     * @throws IllegalArgumentException if `tunnelId` or `config` are null.
+     * @throws JSONException            if parsing `config` fails.
+     */
+    public static TunnelConfig makeTunnelConfig(final String tunnelId, final JSONObject config)
+            throws Exception {
+        final TunnelConfig tunnelConfig = new TunnelConfig();
+        try {
+            tunnelConfig.id = tunnelId;
+            tunnelConfig.proxy = new ShadowsocksConfig();
+            tunnelConfig.proxy.host = config.getString("host");
+            tunnelConfig.proxy.port = config.getInt("port");
+            tunnelConfig.proxy.password = config.getString("password");
+            tunnelConfig.proxy.method = config.getString("method");
+            tunnelConfig.name = "Symlex VPN";
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.fine("Tunnel config missing name");
+        }
+        return tunnelConfig;
+    }
 
     @Override
     public void onCreate() {
@@ -147,33 +174,6 @@ public class VpnTunnelService extends VpnService {
 
     public Builder newBuilder() {
         return new Builder();
-    }
-
-    /**
-     * Helper method to build a TunnelConfig from a JSON object.
-     *
-     * @param tunnelId unique identifier for the tunnel.
-     * @param config   JSON object containing TunnelConfig values.
-     * @return populated TunnelConfig
-     * @throws IllegalArgumentException if `tunnelId` or `config` are null.
-     * @throws JSONException            if parsing `config` fails.
-     */
-    public static TunnelConfig makeTunnelConfig(final String tunnelId, final JSONObject config)
-            throws Exception {
-        final TunnelConfig tunnelConfig = new TunnelConfig();
-        try {
-            tunnelConfig.id = tunnelId;
-            tunnelConfig.proxy = new ShadowsocksConfig();
-            tunnelConfig.proxy.host = config.getString("host");
-            tunnelConfig.proxy.port = config.getInt("port");
-            tunnelConfig.proxy.password = config.getString("password");
-            tunnelConfig.proxy.method = config.getString("method");
-            tunnelConfig.name = "Random Name";
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOG.fine("Tunnel config missing name");
-        }
-        return tunnelConfig;
     }
 
     // Tunnel API
@@ -457,10 +457,10 @@ public class VpnTunnelService extends VpnService {
                 // new notification has the side effect of resetting the tunnel timer.
                 notificationBuilder = getNotificationBuilder(config);
             }
-            notificationBuilder.setContentText(getStringResource("connected_server_state"));
+            notificationBuilder.setContentText("getStringResource('connected_server_state')");
             startForeground(NOTIFICATION_SERVICE_ID, notificationBuilder.build());
         } catch (Exception e) {
-            LOG.warning("Unable to display persistent notification");
+            LOG.warning("Unable to display persistent notification" + e);
         }
     }
 
@@ -473,12 +473,12 @@ public class VpnTunnelService extends VpnService {
             final String statusStringResourceId = status == OutlinePlugin.TunnelStatus.CONNECTED
                     ? "connected_server_state"
                     : "reconnecting_server_state";
-            notificationBuilder.setContentText(getStringResource(statusStringResourceId));
+            notificationBuilder.setContentText("getStringResource(statusStringResourceId)");
             NotificationManager notificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(NOTIFICATION_SERVICE_ID, notificationBuilder.build());
         } catch (Exception e) {
-            LOG.warning("Failed to update persistent notification");
+            LOG.warning("Failed to update persistent notification" + e);
         }
     }
 
@@ -507,6 +507,7 @@ public class VpnTunnelService extends VpnService {
                 .setColor(NOTIFICATION_COLOR)
                 .setVisibility(Notification.VISIBILITY_SECRET) // Don't display in lock screen
                 .setContentIntent(mainActivityIntent)
+                .setSmallIcon(R.drawable.ic_baseline_vpn_lock_24)
                 .setShowWhen(true)
                 .setUsesChronometer(true);
     }

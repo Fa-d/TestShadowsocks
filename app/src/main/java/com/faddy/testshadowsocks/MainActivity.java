@@ -1,6 +1,5 @@
 package com.faddy.testshadowsocks;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,13 +13,10 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.org.outline.android.OutlinePlugin;
+import com.org.outline.vpn.OutlinePlugin;
 import com.org.outline.vpn.VpnServiceStarter;
 import com.org.outline.vpn.VpnTunnelService;
 
@@ -32,20 +28,31 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MainActivity extends AppCompatActivity {
-    private IVpnTunnelService vpnTunnelService;
-    private final VpnTunnelBroadcastReceiver vpnTunnelBroadcastReceiver = new VpnTunnelBroadcastReceiver();
-    final String tunnelId = "23423423";
-    final Integer onActivityResultCode = 788712;
+    private IVpnTunnelService shadowSocksVpnTunnelService;
+    private final VpnTunnelBroadcastReceiver shadowSocksVpnTunnelBroadcastReceiver = new VpnTunnelBroadcastReceiver();
+    final String shadowSocksTunnelId = "23423423";
+    final Integer shadowSocksOnActivityResultCode = 788712;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        pluginInitialize();
+        setContentView(R.layout.activity_main);
+        findViewById(R.id.startShadowsocks).setOnClickListener(v -> startingVPN());
+        findViewById(R.id.stopShadowSocks).setOnClickListener(v -> stopVPN());
+        findViewById(R.id.checkShadowsocks).setOnClickListener(v ->
+                Toast.makeText(MainActivity.this, " " + isTunnelActive(shadowSocksTunnelId), Toast.LENGTH_SHORT).show()
+        );
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == onActivityResultCode && resultCode == RESULT_OK) {
-            fun2();
+        if (requestCode == shadowSocksOnActivityResultCode && resultCode == RESULT_OK) {
+            connectToShadowSocksWithCredential();
         }
     }
 
-    private void fun2() {
+    private void connectToShadowSocksWithCredential() {
         JSONObject obj = new JSONObject();
         try {
             obj.put("host", "212.8.243.30");
@@ -53,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
             obj.put("password", "kjYT32@");
             obj.put("method", "aes-256-gcm");
             try {
-                vpnTunnelService.startTunnel(VpnTunnelService.makeTunnelConfig(tunnelId, obj));
+                shadowSocksVpnTunnelService.startTunnel(VpnTunnelService.makeTunnelConfig(shadowSocksTunnelId, obj));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -64,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean isTunnelActive(final String tunnelId) {
         try {
-            return vpnTunnelService.isTunnelActive(tunnelId);
+            return shadowSocksVpnTunnelService.isTunnelActive(tunnelId);
         } catch (Exception e) {
             Log.d("hello",
                     String.format(Locale.ROOT, "Failed to determine if tunnel is active: %s", tunnelId), e);
@@ -72,42 +79,20 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        pluginInitialize();
-        setContentView(R.layout.activity_main);
-        findViewById(R.id.startShadowsocks).setOnClickListener(v -> startingVPN());
-        findViewById(R.id.stopShadowSocks).setOnClickListener(v -> stopVPN());
-        findViewById(R.id.checkShadowsocks).setOnClickListener(v ->
-                Toast.makeText(MainActivity.this, " " + isTunnelActive(tunnelId), Toast.LENGTH_SHORT).show()
-        );
-    }
 
     private void startingVPN() {
 
         Intent prepareVpnIntent = VpnService.prepare(getApplicationContext());
         if (prepareVpnIntent != null) {
-            startActivityForResult(prepareVpnIntent, onActivityResultCode);
-            /*registerForActivityResult(
-                    new ActivityResultContracts.StartActivityForResult(),
-                    new ActivityResultCallback<ActivityResult>() {
-                        @Override
-                        public void onActivityResult(ActivityResult result) {
-                            if (result.getResultCode() == Activity.RESULT_OK) {
-                                Intent data = result.getData();
-
-                            }
-                        }
-                    });*/
+            startActivityForResult(prepareVpnIntent, shadowSocksOnActivityResultCode);
         } else {
-            fun2();
+            connectToShadowSocksWithCredential();
         }
     }
 
     private void stopVPN() {
         try {
-            vpnTunnelService.stopTunnel(tunnelId);
+            shadowSocksVpnTunnelService.stopTunnel(shadowSocksTunnelId);
    /*         getBaseContext().unbindService(vpnServiceConnection);
             getBaseContext().unregisterReceiver(vpnTunnelBroadcastReceiver);*/
         } catch (RemoteException e) {
@@ -118,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     private final ServiceConnection vpnServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            vpnTunnelService = IVpnTunnelService.Stub.asInterface(binder);
+            shadowSocksVpnTunnelService = IVpnTunnelService.Stub.asInterface(binder);
         }
 
         @Override
@@ -137,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter broadcastFilter = new IntentFilter();
         broadcastFilter.addAction(OutlinePlugin.Action.ON_STATUS_CHANGE.value);
         broadcastFilter.addCategory(context.getPackageName());
-        context.registerReceiver(vpnTunnelBroadcastReceiver, broadcastFilter);
+        context.registerReceiver(shadowSocksVpnTunnelBroadcastReceiver, broadcastFilter);
         context.bindService(new Intent(context, VpnTunnelService.class), vpnServiceConnection,
                 Context.BIND_AUTO_CREATE);
     }
